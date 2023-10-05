@@ -1,9 +1,9 @@
 package com.example.salaryapp.controllers;
 
-import com.example.salaryapp.auth.AuthRequest;
-import com.example.salaryapp.auth.AuthResponse;
-import com.example.salaryapp.auth.RegisterRequest;
-import com.example.salaryapp.services.AuthenticationService;
+import com.example.salaryapp.dto.auth.AuthRequest;
+import com.example.salaryapp.dto.auth.AuthResponse;
+import com.example.salaryapp.dto.auth.RegisterRequest;
+import com.example.salaryapp.services.auth.AuthenticationService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;

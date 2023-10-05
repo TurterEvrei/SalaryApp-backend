@@ -1,8 +1,8 @@
-package com.example.salaryapp.services;
+package com.example.salaryapp.services.auth;
 
-import com.example.salaryapp.auth.AuthRequest;
-import com.example.salaryapp.auth.AuthResponse;
-import com.example.salaryapp.auth.RegisterRequest;
+import com.example.salaryapp.dto.auth.AuthRequest;
+import com.example.salaryapp.dto.auth.AuthResponse;
+import com.example.salaryapp.dto.auth.RegisterRequest;
 import com.example.salaryapp.entities.Token;
 import com.example.salaryapp.entities.User;
 import com.example.salaryapp.entities.enums.Role;
@@ -72,6 +72,10 @@ public class AuthenticationService {
 
     public AuthResponse refresh(HttpServletRequest request) {
         String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
+
+        System.out.println(authHeader);
+
+
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
             String jwt = authHeader.substring(7);
             String email = jwtService.extractUsername(jwt);

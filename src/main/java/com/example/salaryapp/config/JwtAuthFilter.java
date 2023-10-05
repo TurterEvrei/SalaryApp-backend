@@ -1,6 +1,6 @@
 package com.example.salaryapp.config;
 
-import com.example.salaryapp.services.JwtService;
+import com.example.salaryapp.services.auth.JwtService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -37,6 +37,11 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
 
             String jwt = authHeader.substring(7);
+
+
+            System.out.println(authHeader);
+
+
             String username = jwtService.extractUsername(jwt);
 
             if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {

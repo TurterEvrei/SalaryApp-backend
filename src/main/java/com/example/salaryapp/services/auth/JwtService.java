@@ -1,5 +1,6 @@
-package com.example.salaryapp.services;
+package com.example.salaryapp.services.auth;
 
+import com.example.salaryapp.entities.User;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -36,10 +37,11 @@ public class JwtService {
         return claimsResolver.apply(claims);
     }
 
-    public String generateAccessToken(UserDetails userDetails) {
+    public String generateAccessToken(User user) {
         Map<String, Object> extraClaims = new HashMap<>();
-        extraClaims.put("roles", userDetails.getAuthorities());
-        return buildToken(extraClaims, userDetails, accessExpiration);
+        extraClaims.put("roles", user.getAuthorities());
+        extraClaims.put("id", user.getId());
+        return buildToken(extraClaims, user, accessExpiration);
     }
 
     public String generateRefreshToken(UserDetails userDetails) {
