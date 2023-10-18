@@ -2,6 +2,7 @@ package com.example.salaryapp.dto;
 
 import lombok.Data;
 
+import java.time.LocalDate;
 import java.util.Date;
 
 @Data
@@ -13,6 +14,6 @@ public class PaymentDTO {
     private Integer totalPayment;
     private Long employeeId;
     private String employeeName;
-    private Date date;
+    private LocalDate date;
 
 }

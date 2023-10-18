@@ -12,6 +12,7 @@ import org.modelmapper.Converter;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
@@ -118,7 +119,7 @@ public class Mapper {
                                 ctx.getSource().getName())
                         .map(Payment::getEmployee, PaymentDTO::setEmployeeName))
                 .addMappings(mapper -> mapper.using(
-                        (Converter<DailyReport, Date>) ctx ->
+                        (Converter<DailyReport, LocalDate>) ctx ->
                                 ctx.getSource().getDate())
                         .map(Payment::getDailyReport, PaymentDTO::setDate))
                 .map(payment);

@@ -33,18 +33,30 @@ public class Employee {
     @Column(name = "active")
     private Boolean active;
 
-    @OneToOne(mappedBy = "employee")
+    @OneToOne(mappedBy = "employee", cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     private User user;
 
-    @OneToMany(mappedBy = "employee")
+    @OneToMany(mappedBy = "employee", cascade = CascadeType.ALL)
     private List<Payment> payments;
 
-    @ManyToMany
+    @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     @JoinTable(
             name = "employee_department",
             joinColumns = @JoinColumn(name = "employee_id"),
             inverseJoinColumns = @JoinColumn(name = "department_id")
     )
     private List<Department> departments;
+
+    @Override
+    public String toString() {
+        return "Employee{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", active=" + active +
+                ", user=" + user +
+//                ", payments=" + payments +
+//                ", departments=" + departments +
+                '}';
+    }
 
 }

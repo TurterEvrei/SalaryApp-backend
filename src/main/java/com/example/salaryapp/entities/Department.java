@@ -24,7 +24,7 @@ public class Department {
     @Column(name = "name")
     private String name;
 
-    @ManyToMany
+    @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     @JoinTable(
             name = "employee_department",
             joinColumns = @JoinColumn(name = "department_id"),
@@ -32,10 +32,18 @@ public class Department {
     )
     private List<Employee> employees;
 
-    @OneToMany(mappedBy = "department")
+    @OneToMany(mappedBy = "department", cascade = CascadeType.ALL)
     private List<DailyReport> dailyReports;
 
     @Column(name = "calc_setting")
     private Float calcSetting;
 
+    @Override
+    public String toString() {
+        return "Department{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", calcSetting=" + calcSetting +
+                '}';
+    }
 }

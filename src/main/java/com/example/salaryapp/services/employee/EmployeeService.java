@@ -15,7 +15,8 @@ public interface EmployeeService {
     List<Employee> getEmployeesFromDepartment(Long departmentId);
     List<Employee> getActiveEmployeesFromDepartment(Department department);
     Employee createEmployee(Employee employee);
-    Employee editEmployee(Employee employee);
+    Boolean editEmployee(Employee employee);
+    Boolean editEmployees(List<Employee> employees);
     Boolean deleteEmployee(Long id);
     Boolean deleteEmployees(List<Employee> employees);
 

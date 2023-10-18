@@ -1,7 +1,10 @@
 package com.example.salaryapp.services.user;
 
+import com.example.salaryapp.entities.Employee;
 import com.example.salaryapp.entities.User;
+import com.example.salaryapp.exceptions.NoSuchEntityExeption;
 import com.example.salaryapp.exceptions.WrongIdForEditException;
+import com.example.salaryapp.repositories.EmployeeRepo;
 import com.example.salaryapp.repositories.UserRepo;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -11,12 +14,15 @@ import org.springframework.stereotype.Service;
 import javax.naming.NameAlreadyBoundException;
 import java.security.Principal;
 import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
 
     private final UserRepo userRepo;
+    private final EmployeeRepo employeeRepo;
     private final PasswordEncoder passwordEncoder;
 
     @Override
@@ -48,21 +54,37 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User editUser(User user) {
-        User storedUser = userRepo.findById(user.getId()).orElse(null);
-        if (storedUser == null) {
-            throw new WrongIdForEditException(user.getId(), user);
+        try {
+            return preEditUser(user);
+        } catch (Exception e) {
+            System.out.println(e);
+            return null;
         }
-        if (!storedUser.getPassword().equals(user.getPassword())) {
-            user.setPassword(passwordEncoder.encode(user.getPassword()));
+    }
+
+    @Override
+    public Boolean editUsers(List<User> users) {
+        try {
+            users.forEach(this::preEditUser);
+            return true;
+        } catch (Exception e) {
+            System.out.println(e);
+            return false;
         }
-        System.out.println(user.getEmployee().getUser().getId());
-        return userRepo.save(user);
     }
 
     @Override
     public Boolean deleteUser(Long id) {
         try {
-            userRepo.deleteById(id);
+            User storedUser = userRepo.findById(id).orElseThrow(() ->
+                    new NoSuchEntityExeption(id, User.class));
+            Employee employee = storedUser.getEmployee();
+            if (employee != null) {
+                employee.setUser(null);
+                storedUser.setEmployee(null);
+                employeeRepo.save(employee);
+            }
+            userRepo.delete(storedUser);
             return true;
         } catch (Exception e) {
             System.out.println(e.getMessage());
@@ -79,6 +101,33 @@ public class UserServiceImpl implements UserService {
             System.out.println(e.getMessage());
             return false;
         }
+    }
+
+    private User preEditUser(User user) {
+        User storedUser = userRepo.findById(user.getId()).orElse(null);
+        if (storedUser == null) {
+            throw new WrongIdForEditException(user.getId(), user);
+        }
+        Employee oldEmployee = storedUser.getEmployee();
+        Employee currentEmployee = user.getEmployee();
+
+        if (!storedUser.getPassword().equals(user.getPassword())) {
+            user.setPassword(passwordEncoder.encode(user.getPassword()));
+        }
+
+        if (currentEmployee != null) {
+            User oldUser = currentEmployee.getUser();
+            if (oldEmployee != null && !oldEmployee.equals(currentEmployee)) {
+                oldEmployee.setUser(null);
+                employeeRepo.save(oldEmployee);
+            }
+            if (oldUser != null && !oldUser.equals(user)) {
+                oldUser.setEmployee(null);
+                userRepo.save(oldUser);
+            }
+            currentEmployee.setUser(user);
+        }
+        return userRepo.save(user);
     }
 
 }

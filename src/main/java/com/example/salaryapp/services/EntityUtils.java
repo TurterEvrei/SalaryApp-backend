@@ -3,10 +3,16 @@ package com.example.salaryapp.services;
 import com.example.salaryapp.exceptions.WrongIdForEditException;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import javax.swing.text.html.parser.Entity;
 import java.util.List;
+import java.util.Objects;
 
 public class EntityUtils {
+
+    public static <T> void checkEntityExist(JpaRepository<T, Long> repo, T entity, Long id) {
+        if (!repo.existsById(id)) {
+            throw new WrongIdForEditException(id, entity);
+        }
+    }
 
     public static <T> T editEntity(JpaRepository<T, Long> repo, T entity, Long id) {
         if (repo.findById(id).isEmpty()) {
@@ -34,5 +40,9 @@ public class EntityUtils {
             return false;
         }
     }
+
+//    public <T, D> boolean sameAsPrev(T prevValue, D newValue) {
+//        return Objects.equals(prevValue, newValue);
+//    }
 
 }

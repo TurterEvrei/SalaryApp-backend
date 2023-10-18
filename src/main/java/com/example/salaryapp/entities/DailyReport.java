@@ -6,6 +6,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDate;
 import java.util.Date;
 import java.util.List;
 
@@ -30,7 +31,7 @@ public class DailyReport {
     private Department department;
 
     @Column(name = "date")
-    private Date date;
+    private LocalDate date;
 
     @Column(name = "date_of_created")
     private Date dateOfCreated;

@@ -3,6 +3,7 @@ package com.example.salaryapp.dto;
 import lombok.Builder;
 import lombok.Data;
 
+import java.time.LocalDate;
 import java.util.Date;
 import java.util.List;
 
@@ -12,7 +13,7 @@ public class DailyReportDTO {
     private Long id;
     private List<PaymentDTO> payments;
     private Long department;
-    private Date date;
+    private LocalDate date;
     private Date dateOfCreated;
 
 }

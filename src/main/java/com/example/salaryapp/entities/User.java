@@ -88,4 +88,26 @@ public class User implements UserDetails {
     public boolean isEnabled() {
         return active;
     }
+
+//    public void setEmployee(Employee employee) {
+//        if (Objects.equals(this.employee, employee)) {
+//            return;
+//        }
+//
+//    }
+
+    @Override
+    public String toString() {
+        return "User{" +
+                "id=" + id +
+                ", email='" + email + '\'' +
+                ", name='" + name + '\'' +
+                ", phoneNumber='" + phoneNumber + '\'' +
+                ", active=" + active +
+                ", roles=" + roles +
+                ", employee=" + employee.getName() +
+                '}';
+    }
+
+//    private boolean sameAsPrev()
 }

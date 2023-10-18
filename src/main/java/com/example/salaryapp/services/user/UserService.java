@@ -14,6 +14,7 @@ public interface UserService {
     User getUserByPrincipal(Principal principal);
     User createUser(User user) throws NameAlreadyBoundException;
     User editUser(User user);
+    Boolean editUsers(List<User> users);
     Boolean deleteUser(Long id);
     Boolean deleteUsers(List<User> users);
 

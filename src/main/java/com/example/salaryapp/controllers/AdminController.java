@@ -1,9 +1,12 @@
 package com.example.salaryapp.controllers;
 
+import com.example.salaryapp.dto.DepartmentDTO;
 import com.example.salaryapp.dto.EmployeeDTO;
 import com.example.salaryapp.dto.UserDTO;
+import com.example.salaryapp.entities.Department;
 import com.example.salaryapp.entities.User;
 import com.example.salaryapp.mappers.Mapper;
+import com.example.salaryapp.services.department.DepartmentService;
 import com.example.salaryapp.services.employee.EmployeeService;
 import com.example.salaryapp.services.user.UserService;
 import lombok.RequiredArgsConstructor;
@@ -21,6 +24,7 @@ public class AdminController {
 
     private final UserService userService;
     private final EmployeeService employeeService;
+    private final DepartmentService departmentService;
     private final Mapper mapper;
 
     @GetMapping("/users")
@@ -40,11 +44,17 @@ public class AdminController {
         ));
     }
 
-    @PutMapping("/users")
+    @PutMapping("/user")
     public ResponseEntity<UserDTO> editUser(@RequestBody UserDTO userDTO) {
         return ResponseEntity.ok(mapper.convertUserToDto(
                 userService.editUser(mapper.convertDtoToUser(userDTO))
         ));
+    }
+
+    @PutMapping("/users")
+    public ResponseEntity<Boolean> editUsers(@RequestBody List<UserDTO> userDTOList) {
+        return ResponseEntity.ok(userService.editUsers(userDTOList.stream()
+                .map(mapper::convertDtoToUser).collect(Collectors.toList())));
     }
 
     @DeleteMapping("/users/{id}")
@@ -65,6 +75,31 @@ public class AdminController {
                         .map(mapper::convertEmployeeToDto)
                         .collect(Collectors.toList())
         );
+    }
+
+    @GetMapping("/departments")
+    public ResponseEntity<List<DepartmentDTO>> getAllDepartments() {
+        return ResponseEntity.ok(departmentService.getAllDepartments());
+    }
+
+    @PostMapping("/department")
+    public ResponseEntity<DepartmentDTO> createDepartment(@RequestBody DepartmentDTO departmentDTO) {
+        return ResponseEntity.ok(departmentService.createDepartment(departmentDTO));
+    }
+
+    @PutMapping("/department")
+    public ResponseEntity<Boolean> editDepartment(@RequestBody DepartmentDTO departmentDTO) {
+        return ResponseEntity.ok(departmentService.editDepartment(departmentDTO));
+    }
+
+    @PutMapping("/departments")
+    public ResponseEntity<Boolean> editDepartments(@RequestBody List<DepartmentDTO> departmentDTOList) {
+        return ResponseEntity.ok(departmentService.editDepartments(departmentDTOList));
+    }
+
+    @DeleteMapping("/department/{id}")
+    public ResponseEntity<Boolean> deleteDepartment(@PathVariable Long id) {
+        return ResponseEntity.ok(departmentService.deleteDepartment(id));
     }
 
 }
