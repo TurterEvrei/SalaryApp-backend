@@ -14,8 +14,6 @@ import org.springframework.stereotype.Service;
 import javax.naming.NameAlreadyBoundException;
 import java.security.Principal;
 import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -99,6 +97,19 @@ public class UserServiceImpl implements UserService {
             return true;
         } catch (Exception e) {
             System.out.println(e.getMessage());
+            return false;
+        }
+    }
+
+    @Override
+    public Boolean changePassword(String password, Principal principal) {
+        try {
+            User user = this.getUserByPrincipal(principal);
+            user.setPassword(passwordEncoder.encode(password));
+            userRepo.save(user);
+            return true;
+        } catch (Exception e) {
+            System.out.println(e);
             return false;
         }
     }

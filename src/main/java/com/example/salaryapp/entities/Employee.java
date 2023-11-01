@@ -39,6 +39,10 @@ public class Employee {
     @OneToMany(mappedBy = "employee", cascade = CascadeType.ALL)
     private List<Payment> payments;
 
+    @OneToMany(mappedBy = "employee", cascade = CascadeType.ALL)
+    @JsonIgnore
+    private List<Wish> wishes;
+
     @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     @JoinTable(
             name = "employee_department",

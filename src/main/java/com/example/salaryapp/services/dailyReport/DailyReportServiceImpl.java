@@ -1,6 +1,6 @@
 package com.example.salaryapp.services.dailyReport;
 
-import com.example.salaryapp.dto.domain.DatePeriod;
+import com.example.salaryapp.domain.DatePeriod;
 import com.example.salaryapp.entities.DailyReport;
 import com.example.salaryapp.entities.Payment;
 import com.example.salaryapp.entities.enums.DatePeriodType;
@@ -23,6 +23,7 @@ public class DailyReportServiceImpl implements DailyReportService {
 
     private final DailyReportRepo dailyReportRepo;
     private final PaymentRepo paymentRepo;
+    private final DateUtils dateUtils;
     private final EmployeeRepo employeeRepo;
     private final Mapper mapper;
 
@@ -33,8 +34,8 @@ public class DailyReportServiceImpl implements DailyReportService {
 
     @Override
     public List<DailyReport> getDailyReportsByDepartment(Long departmentId, DatePeriodType datePeriodType) {
-        DatePeriod datePeriod = DateUtils.getDatesOfPeriodType(datePeriodType);
-        return dailyReportRepo.findDailyReportsByDateBetweenAndDepartment_Id(
+        DatePeriod datePeriod = dateUtils.getDatesOfPeriodType(datePeriodType);
+        return dailyReportRepo.findDailyReportsByDateBetweenAndDepartment_IdOrderByDate(
                 datePeriod.getDateStart(),
                 datePeriod.getDateFinish(),
                 departmentId
@@ -51,7 +52,7 @@ public class DailyReportServiceImpl implements DailyReportService {
                         ? LocalDate.now()
                         : dateFinish)
                 .build();
-        return dailyReportRepo.findDailyReportsByDateBetweenAndDepartment_Id(
+        return dailyReportRepo.findDailyReportsByDateBetweenAndDepartment_IdOrderByDate(
                 datePeriod.getDateStart(),
                 datePeriod.getDateFinish(),
                 departmentId

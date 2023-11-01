@@ -1,16 +1,38 @@
 package com.example.salaryapp.services;
 
-import com.example.salaryapp.dto.domain.DatePeriod;
+import com.example.salaryapp.domain.DatePeriod;
+import com.example.salaryapp.domain.DayData;
+import com.example.salaryapp.domain.Pagination;
 import com.example.salaryapp.entities.enums.DatePeriodType;
+import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.ZoneId;
-import java.util.Calendar;
-import java.util.Date;
+import java.util.*;
 
+@Service
 public class DateUtils {
 
-    public static DatePeriod getDatesOfPeriodType(DatePeriodType datePeriodType) {
+    private final static String[] daysOfWeek = new String[]{"Пн", "Вт", "Ср", "Чт", "Пт", "Сб", "Вс"};
+
+    public List<DayData> getDayDataList(LocalDate date, Pagination pagination, int curIndex) {
+
+        Calendar datePoint = Calendar.getInstance();
+        datePoint.set(date.getYear(), date.getMonthValue() - 1, date.getDayOfMonth());
+        System.out.println(datePoint.get(Calendar.DATE));
+        datePoint.set(Calendar.DAY_OF_WEEK, Calendar.MONDAY);
+        datePoint.add(Calendar.WEEK_OF_YEAR, pagination.getPageSize() * pagination.getPageIndex() + curIndex);
+        System.out.println(datePoint.get(Calendar.DATE));
+
+        List<DayData> dates = new LinkedList<>();
+        for (int i = 0; i < 7; i++) {
+            dates.add(new DayData(LocalDate.ofInstant(datePoint.toInstant(), ZoneId.systemDefault()), daysOfWeek[i]));
+            datePoint.add(Calendar.DATE, 1);
+        }
+        return dates;
+    }
+
+    public DatePeriod getDatesOfPeriodType(DatePeriodType datePeriodType) {
         Calendar start = Calendar.getInstance();
         start.setTime(new Date());
         Calendar finish = Calendar.getInstance();

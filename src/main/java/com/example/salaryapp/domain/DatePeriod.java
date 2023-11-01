@@ -1,4 +1,4 @@
-package com.example.salaryapp.dto.domain;
+package com.example.salaryapp.domain;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

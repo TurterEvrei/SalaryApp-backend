@@ -172,4 +172,24 @@ public class Mapper {
                 .map(dailyReportDTO);
     }
 
+    public WishDTO convertWishToDto(Wish wish) {
+        return modelMapper.typeMap(Wish.class, WishDTO.class)
+                .addMapping(w -> w.getEmployee().getId(), WishDTO::setEmployee)
+                .addMapping(w -> w.getDepartment().getId(), WishDTO::setDepartment)
+                .map(wish);
+    }
+
+    public Wish convertDtoToWish(WishDTO wishDTO) {
+        return modelMapper.typeMap(WishDTO.class, Wish.class)
+                .addMappings(mapper -> mapper.using(
+                        (Converter<Long, Employee>) ctx ->
+                                employeeRepo.findById(ctx.getSource()).orElse(null))
+                        .map(WishDTO::getEmployee, Wish::setEmployee))
+                .addMappings(mapper -> mapper.using(
+                        (Converter<Long, Department>) ctx ->
+                                departmentRepo.findById(ctx.getSource()).orElse(null))
+                        .map(WishDTO::getDepartment, Wish::setDepartment))
+                .map(wishDTO);
+    }
+
 }

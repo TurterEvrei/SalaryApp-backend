@@ -1,8 +1,8 @@
 package com.example.salaryapp.services.auth;
 
-import com.example.salaryapp.dto.auth.AuthRequest;
-import com.example.salaryapp.dto.auth.AuthResponse;
-import com.example.salaryapp.dto.auth.RegisterRequest;
+import com.example.salaryapp.domain.auth.AuthRequest;
+import com.example.salaryapp.domain.auth.AuthResponse;
+import com.example.salaryapp.domain.auth.RegisterRequest;
 import com.example.salaryapp.entities.Token;
 import com.example.salaryapp.entities.User;
 import com.example.salaryapp.entities.enums.Role;
@@ -72,20 +72,17 @@ public class AuthenticationService {
 
     public AuthResponse refresh(HttpServletRequest request) {
         String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
-
-        System.out.println(authHeader);
-
-
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
             String jwt = authHeader.substring(7);
             String email = jwtService.extractUsername(jwt);
             if (email != null) {
                 User user = (User) userDetailsService.loadUserByUsername(email);
-                boolean isTokenValid = tokenRepo.findByToken(jwt)
+                boolean isTokenValid = tokenRepo.findFirstByToken(jwt)
                         .map(token -> !token.isExpired() && !token.isRevoked())
                         .orElse(false);
                 if (isTokenValid && jwtService.isTokenValid(jwt, user)) {
                     revokeAllUserTokens(user);
+                    cleanAllRevokedTokens(user);
                     String refreshToken = jwtService.generateRefreshToken(user);
                     saveUserToken(refreshToken, user);
                     return AuthResponse.builder()
@@ -106,7 +103,11 @@ public class AuthenticationService {
                 .expired(false)
                 .tokenType(TokenType.BEARER)
                 .build();
-        tokenRepo.save(token);
+        if (tokenRepo.findFirstByToken(jwt).isPresent()) {
+            System.out.println("Duplicate trying to save token: " + jwt);
+        } else {
+            tokenRepo.save(token);
+        }
     }
 
     private void revokeAllUserTokens(User user) {
@@ -119,6 +120,10 @@ public class AuthenticationService {
             token.setRevoked(true);
         });
         tokenRepo.saveAll(tokens);
+    }
+
+    private void cleanAllRevokedTokens(User user) {
+        tokenRepo.deleteAll(tokenRepo.findBearerRevokedAndExpiredTokens(user.getId()));
     }
 
 }

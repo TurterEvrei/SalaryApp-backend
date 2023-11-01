@@ -1,4 +1,4 @@
-package com.example.salaryapp.dto.auth;
+package com.example.salaryapp.domain.auth;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

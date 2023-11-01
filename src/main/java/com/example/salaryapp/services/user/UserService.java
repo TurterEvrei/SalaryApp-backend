@@ -1,6 +1,5 @@
 package com.example.salaryapp.services.user;
 
-import com.example.salaryapp.entities.Employee;
 import com.example.salaryapp.entities.User;
 
 import javax.naming.NameAlreadyBoundException;
@@ -17,5 +16,6 @@ public interface UserService {
     Boolean editUsers(List<User> users);
     Boolean deleteUser(Long id);
     Boolean deleteUsers(List<User> users);
+    Boolean changePassword(String password, Principal principal);
 
 }

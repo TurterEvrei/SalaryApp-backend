@@ -1,8 +1,8 @@
 package com.example.salaryapp.controllers;
 
-import com.example.salaryapp.dto.auth.AuthRequest;
-import com.example.salaryapp.dto.auth.AuthResponse;
-import com.example.salaryapp.dto.auth.RegisterRequest;
+import com.example.salaryapp.domain.auth.AuthRequest;
+import com.example.salaryapp.domain.auth.AuthResponse;
+import com.example.salaryapp.domain.auth.RegisterRequest;
 import com.example.salaryapp.services.auth.AuthenticationService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
@@ -26,6 +26,7 @@ public class AuthController {
 
     @PostMapping("authenticate")
     public ResponseEntity<AuthResponse> authenticate(@RequestBody AuthRequest request) {
+        System.out.println(request);
         return ResponseEntity.ok(authService.authentication(request));
     }
 

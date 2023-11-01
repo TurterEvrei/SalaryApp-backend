@@ -41,6 +41,7 @@ public class JwtService {
         Map<String, Object> extraClaims = new HashMap<>();
         extraClaims.put("roles", user.getAuthorities());
         extraClaims.put("id", user.getId());
+        extraClaims.put("empId", user.getEmployee() == null ? null : user.getEmployee().getId());
         return buildToken(extraClaims, user, accessExpiration);
     }
 

@@ -15,4 +15,7 @@ public interface EmployeeRepo extends JpaRepository<Employee, Long> {
     @Query("select distinct emp from Employee emp join emp.departments dep where dep =:department and emp.active = true")
     List<Employee> findActiveByDepartment(Department department);
 
+    @Query("select distinct emp from Employee emp join emp.departments dep where dep.id =:departmentId and emp.active = true")
+    List<Employee> findActiveEmployeesByDepartmentId(Long departmentId);
+
 }
