@@ -12,7 +12,9 @@ import com.example.salaryapp.mappers.Mapper;
 import com.example.salaryapp.services.DateUtils;
 import com.example.salaryapp.services.dailyReport.DailyReportService;
 import com.example.salaryapp.services.employee.EmployeeService;
+import com.example.salaryapp.services.exporter.ExporterService;
 import com.example.salaryapp.services.payment.PaymentService;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
@@ -32,6 +34,7 @@ public class MasterController {
     private final EmployeeService employeeService;
     private final DailyReportService dailyReportService;
     private final PaymentService paymentService;
+    private final ExporterService exporterService;
     private final DateUtils dateUtils;
     private final Mapper mapper;
 
@@ -96,4 +99,23 @@ public class MasterController {
         return ResponseEntity.ok(res);
     }
 
+    @GetMapping("/reports-table")
+    public void exportReportsToExcel(
+            @RequestParam Long departmentId,
+            @RequestParam DatePeriodType datePeriodType,
+            @RequestParam(required = false) LocalDate dateStart,
+            @RequestParam(required = false) LocalDate dateFinish,
+            HttpServletResponse response
+    ) {
+        response.setContentType("application/octet-stream");
+        String headerKey = "Content-Disposition";
+        String headerValue = "attachment; filename=reports.xlsx";
+        response.setHeader(headerKey, headerValue);
+
+        List<DailyReport> reportList = datePeriodType == DatePeriodType.CUSTOM
+                ? dailyReportService.getDailyReportsByDepartment(departmentId, dateStart, dateFinish)
+                : dailyReportService.getDailyReportsByDepartment(departmentId, datePeriodType);
+
+        exporterService.exportDailyReports(response, reportList);
+    }
 }

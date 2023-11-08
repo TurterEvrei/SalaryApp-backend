@@ -9,7 +9,7 @@ import java.util.List;
 
 public interface PaymentRepo extends JpaRepository<Payment, Long> {
 
-    @Query("select distinct payment from Payment payment join payment.dailyReport report " +
+    @Query("select payment from Payment payment join payment.dailyReport report " +
             "where payment.employee.id =:employeeId " +
             "and report.department.id =:departmentId " +
             "and report.date between :dateStart and :dateFinish order by report.date")

@@ -24,8 +24,6 @@ public class DailyReportServiceImpl implements DailyReportService {
     private final DailyReportRepo dailyReportRepo;
     private final PaymentRepo paymentRepo;
     private final DateUtils dateUtils;
-    private final EmployeeRepo employeeRepo;
-    private final Mapper mapper;
 
     @Override
     public List<DailyReport> getAllDailyReports() {
