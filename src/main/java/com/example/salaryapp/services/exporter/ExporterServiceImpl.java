@@ -5,7 +5,13 @@ import com.example.salaryapp.entities.Employee;
 import com.example.salaryapp.entities.Payment;
 import jakarta.servlet.ServletOutputStream;
 import jakarta.servlet.http.HttpServletResponse;
-import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.ss.usermodel.BorderStyle;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.FontFamily;
+import org.apache.poi.ss.usermodel.HorizontalAlignment;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.VerticalAlignment;
 import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.xssf.usermodel.XSSFFont;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
@@ -37,62 +43,107 @@ public class ExporterServiceImpl implements ExporterService {
             workbook = new XSSFWorkbook();
             sheet = workbook.createSheet("Reports");
 
-            Map<Long, Row> employeesRowMap = new HashMap<>();
+            Map<Long, EmployeeRow> employeesRowMap = new HashMap<>();
             Map<Integer, Integer> employeesRowResultPaymentMap = new HashMap<>();
 
             Row datesRow = sheet.createRow(0);
-            Row slicesPaymentRow = sheet.createRow(1);
-            int dateColumnIndex = 1;
+//            Row slicesPaymentRow = sheet.createRow(1);
+//            int dateColumnIndex = 1;
+            int dateColumnIndex = 2;
             CellStyle headerStyle = getHeaderStyle();
             CellStyle dataCellStyle = getDataCellStyle();
 
-            sheet.addMergedRegion(new CellRangeAddress(0, 1, 0, 0));
-            int countRowIndex = 2;
+//            sheet.addMergedRegion(new CellRangeAddress(0, 1, 0, 0));
+            sheet.addMergedRegion(new CellRangeAddress(0, 0, 0, 1));
+//            int countRowIndex = 2;
+            int countRowIndex = 1;
             for (DailyReport report : reports) {
                 for (Payment payment : report.getPayments()) {
                     Employee employee = payment.getEmployee();
                     if (!employeesRowMap.containsKey(employee.getId())) {
-                        Row row = sheet.createRow(countRowIndex++);
-                        createCell(row, 0, employee.getName(), dataCellStyle);
-                        employeesRowMap.put(employee.getId(), row);
+//                        Row row = sheet.createRow(countRowIndex++);
+//                        createCell(row, 0, employee.getName(), dataCellStyle);
+//                        employeesRowMap.put(employee.getId(), row);
+                        EmployeeRow employeeRow = new EmployeeRow(
+                                sheet.createRow(countRowIndex++),
+                                sheet.createRow(countRowIndex++),
+                                employee.getName()
+                        );
+                        employeesRowMap.put(employee.getId(), employeeRow);
                     }
                 }
             }
             Row totalPaymentForDayRow = sheet.createRow(countRowIndex++);
             createCell(totalPaymentForDayRow, 0, "За день", headerStyle);
+            sheet.addMergedRegion(new CellRangeAddress(
+                    totalPaymentForDayRow.getRowNum(),
+                    totalPaymentForDayRow.getRowNum(),
+                    0,
+                    1
+            ));
 
             reports.sort(Comparator.comparing(DailyReport::getDate));
 
             for (DailyReport report : reports) {
                 createCell(datesRow, dateColumnIndex, report.getDate().format(dateFormatter), headerStyle);
 
-                sheet.addMergedRegion(new CellRangeAddress(0, 0, dateColumnIndex, dateColumnIndex + 2));
-                createCell(slicesPaymentRow, dateColumnIndex, "%", headerStyle);
-                createCell(slicesPaymentRow, dateColumnIndex + 1, "Чай", headerStyle);
-                createCell(slicesPaymentRow, dateColumnIndex + 2, "Общ.", headerStyle);
+//                sheet.addMergedRegion(new CellRangeAddress(0, 0, dateColumnIndex, dateColumnIndex + 2));
+//                createCell(slicesPaymentRow, dateColumnIndex, "%", headerStyle);
+//                createCell(slicesPaymentRow, dateColumnIndex + 1, "Чай", headerStyle);
+//                createCell(slicesPaymentRow, dateColumnIndex + 2, "Общ.", headerStyle);
 
                 int totalPaymentForDay = 0;
-                for (Payment payment : report.getPayments()) {
-                    Row row = employeesRowMap.get(payment.getEmployee().getId());
-                    createCell(row, dateColumnIndex, payment.getProcentFromSales(), dataCellStyle);
-                    createCell(row, dateColumnIndex + 1, payment.getTips(), dataCellStyle);
-                    createCell(row, dateColumnIndex + 2, payment.getTotalPayment(), dataCellStyle);
-                    totalPaymentForDay += payment.getTotalPayment();
+                for (Map.Entry<Long, EmployeeRow> entry : employeesRowMap.entrySet()) {
+//                    for (Payment payment : report.getPayments()) {
+//                        if (payment.getEmployee().getId().equals(entry.getKey())) {
+//
+//                            break;
+//                        }
+//                        Row row = employeesRowMap.get(payment.getEmployee().getId());
+//                        createCell(row, dateColumnIndex, payment.getProcentFromSales(), dataCellStyle);
+//                        createCell(row, dateColumnIndex + 1, payment.getTips(), dataCellStyle);
+//                        createCell(row, dateColumnIndex + 2, payment.getTotalPayment(), dataCellStyle);
+//                        totalPaymentForDay += payment.getTotalPayment();
+//
+//                        employeesRowResultPaymentMap.merge(row.getRowNum(), payment.getTotalPayment(), Integer::sum);
+//                    }
+                    EmployeeRow employeeRow = entry.getValue();
+                    Payment payment = report.getPayments().stream()
+                            .filter(p -> p.getEmployee().getId().equals(entry.getKey()))
+                            .findFirst()
+                            .orElse(null);
 
-                    employeesRowResultPaymentMap.merge(row.getRowNum(), payment.getTotalPayment(), Integer::sum);
+                    if (payment != null) {
+                        createCell(employeeRow.procentRow, dateColumnIndex,
+                                payment.getProcentFromSales(), dataCellStyle);
+                        createCell(employeeRow.tipRow, dateColumnIndex, payment.getTips(), dataCellStyle);
+
+                        totalPaymentForDay += payment.getTotalPayment();
+
+                        employeesRowResultPaymentMap.merge(employeeRow.procentRow.getRowNum(),
+                                payment.getTotalPayment(), Integer::sum);
+                    } else {
+                        createCell(employeeRow.procentRow, dateColumnIndex, 0, dataCellStyle);
+                        createCell(employeeRow.tipRow, dateColumnIndex, 0, dataCellStyle);
+                    }
                 }
 
-                createCell(totalPaymentForDayRow, dateColumnIndex, "-", headerStyle);
-                createCell(totalPaymentForDayRow, dateColumnIndex + 1, "-", headerStyle);
-                createCell(totalPaymentForDayRow, dateColumnIndex + 2, totalPaymentForDay, headerStyle);
+//                createCell(totalPaymentForDayRow, dateColumnIndex, "-", headerStyle);
+//                createCell(totalPaymentForDayRow, dateColumnIndex + 1, "-", headerStyle);
+//                createCell(totalPaymentForDayRow, dateColumnIndex + 2, totalPaymentForDay, headerStyle);
+                createCell(totalPaymentForDayRow, dateColumnIndex, totalPaymentForDay, headerStyle);
 
-                dateColumnIndex += 3;
+//                dateColumnIndex += 3;
+                dateColumnIndex++;
             }
 
-            sheet.addMergedRegion(new CellRangeAddress(0, 1, dateColumnIndex, dateColumnIndex));
+//            sheet.addMergedRegion(new CellRangeAddress(0, 1, dateColumnIndex, dateColumnIndex));
             createCell(datesRow, dateColumnIndex, "Итого:", headerStyle);
 
-            for (int i = 2; i < countRowIndex; i++) {
+            for (int i = 1; i < countRowIndex; i+=2) {
+                if (i != totalPaymentForDayRow.getRowNum()) {
+                    sheet.addMergedRegion(new CellRangeAddress(i, i + 1, dateColumnIndex, dateColumnIndex));
+                }
                 createCell(sheet.getRow(i), dateColumnIndex, employeesRowResultPaymentMap.get(i), dataCellStyle);
             }
 
@@ -147,5 +198,25 @@ public class ExporterServiceImpl implements ExporterService {
             cell.setCellValue((LocalDate) value);
         }
         cell.setCellStyle(style);
+    }
+
+    private class EmployeeRow {
+        private final static String PROCENT = "%";
+        private final static String TIP = "Чай";
+
+        private final Row procentRow;
+        private final Row tipRow;
+        private String employeeName;
+
+        public EmployeeRow(Row procentRow, Row tipRow, String employeeName) {
+            this.procentRow = procentRow;
+            this.tipRow = tipRow;
+            this.employeeName = employeeName;
+            sheet.addMergedRegion(
+                    new CellRangeAddress(procentRow.getRowNum(), tipRow.getRowNum(), 0, 0));
+            createCell(procentRow, 0, employeeName, getDataCellStyle());
+            createCell(procentRow, 1, PROCENT, getDataCellStyle());
+            createCell(tipRow, 1, TIP, getDataCellStyle());
+        }
     }
 }
